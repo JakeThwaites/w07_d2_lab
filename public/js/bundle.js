@@ -93,7 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("const planetsData = __webpack_require__(/*! ./data/planets.js */ \"./src/data/planets.js\");\nconst SolarSystem = __webpack_require__(/*! ./models/solar_system.js */ \"./src/models/solar_system.js\");\n\ndocument.addEventListener('DOMContentLoaded', () => {\n  const planetsDataModel = new SolarSystem(planetsData);\n  console.log(planetsDataModel.planets);\n});\n\n\n//# sourceURL=webpack:///./src/app.js?");
+eval("const planetsData = __webpack_require__(/*! ./data/planets.js */ \"./src/data/planets.js\");\nconst SolarSystem = __webpack_require__(/*! ./models/solar_system.js */ \"./src/models/solar_system.js\");\nconst NavView = __webpack_require__(/*! ./views/form_view.js */ \"./src/views/form_view.js\");\nconst ResultView = __webpack_require__(/*! ./views/result_view.js */ \"./src/views/result_view.js\");\n\ndocument.addEventListener('DOMContentLoaded', () => {\n\n\n  const planets = document.querySelector(\".planets-menu\");\n  const navView = new NavView(planets);\n  navView.bindEvents();\n\n  const infoDiv = document.querySelector(\".planet-details\");\n  const planetInfoDisplay = new ResultView(infoDiv);\n  planetInfoDisplay.bindEvents();\n\n  const planetsDataModel = new SolarSystem(planetsData);\n  planetsDataModel.bindEvents();\n});\n\n\n//# sourceURL=webpack:///./src/app.js?");
 
 /***/ }),
 
@@ -126,7 +126,29 @@ eval("const PubSub = {\n  publish: function(channel, payload){\n    const event 
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("const planets = __webpack_require__(/*! ../data/planets.js */ \"./src/data/planets.js\");\nconst PubSub = __webpack_require__(/*! ../helpers/pub_sub.js */ \"./src/helpers/pub_sub.js\");\n\nconst SolarSystem = function(planets) {\n  this.planets = planets;\n};\n\nSolarSystem.prototype.publishSelectedPlanet = function(planetIndex){\n  const selectedPlanet = this.planets[planetIndex];\n  PubSub.publish('Planets:selected-planet-ready', selectedPlanet)\n};\n\nSolarSystem.prototype.bindEvents = function () {\n  PubSub.publish('Planets:all-planets-ready', this.planets);\n  PubSub.subscribe('FormView:change', (event) => {\n    const selectedIndex = event.detail;\n    this.publishSelectedPlanet(selectedIndex);\n  });\n};\n\nmodule.exports = SolarSystem;\n\n\n//# sourceURL=webpack:///./src/models/solar_system.js?");
+eval("const planets = __webpack_require__(/*! ../data/planets.js */ \"./src/data/planets.js\");\nconst PubSub = __webpack_require__(/*! ../helpers/pub_sub.js */ \"./src/helpers/pub_sub.js\");\n\nconst SolarSystem = function(planets) {\n  this.planets = planets;\n};\n\nSolarSystem.prototype.publishSelectedPlanet = function(planetName){\n  const planetIndex = this.findPlanetByName(planetName);\n  const selectedPlanet = this.planets[planetIndex];\n  PubSub.publish('Planets:selected-planet-ready', selectedPlanet)\n};\n\nSolarSystem.prototype.bindEvents = function () {\n  PubSub.publish('Planets:all-planets-ready', this.planets);\n  PubSub.subscribe('NavView:planet-clicked', (event) => {\n    const planetName = event.detail;\n    this.publishSelectedPlanet(planetName);\n  });\n};\n\nSolarSystem.prototype.findPlanetByName = function (planetName) {\n    for (planet of this.planets) {\n      if (planet.name === planetName) {\n        return planet.index;\n      };\n    };\n};\n\nmodule.exports = SolarSystem;\n\n\n//# sourceURL=webpack:///./src/models/solar_system.js?");
+
+/***/ }),
+
+/***/ "./src/views/form_view.js":
+/*!********************************!*\
+  !*** ./src/views/form_view.js ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("const PubSub = __webpack_require__(/*! ../helpers/pub_sub.js */ \"./src/helpers/pub_sub.js\");\n\nconst NavView = function (element) {\n  this.element = element;\n};\n\nNavView.prototype.bindEvents = function () {\n  this.element.addEventListener('click', (event) => {\n    const selectedPlanetName = event.target.id;\n    PubSub.publish('NavView:planet-clicked', selectedPlanetName);\n  });\n\n  PubSub.subscribe('Planets:all-planets-ready', (event) => {\n    const allPlanets = event.detail;\n    // this.populate(allPlanets);\n  });\n};\n\nmodule.exports = NavView;\n\n\n//# sourceURL=webpack:///./src/views/form_view.js?");
+
+/***/ }),
+
+/***/ "./src/views/result_view.js":
+/*!**********************************!*\
+  !*** ./src/views/result_view.js ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("const PubSub = __webpack_require__(/*! ../helpers/pub_sub.js */ \"./src/helpers/pub_sub.js\");\n\nconst ResultView = function (container) {\n  this.container = container;\n};\n\nResultView.prototype.bindEvents = function () {\n  PubSub.subscribe('Planets:all-planets-ready', (event) => {\n    const planet = event.detail;\n    this.render(planet);\n    console.log(planet);\n  });\n}\n\nResultView.prototype.render = function (planet) {\n\n  const infoParagraph = document.createElement('ul');\n\n  const planetName = document.createElement('li');\n  planetName.textContent = planet.name;\n\n  const planetOrbit = document.createElement('li');\n  planetOrbit.textContent = `Orbit: ${planet.orbit} Earth Days`;\n\n  const planetDay = document.createElement('li');\n  planetDay.textContent = `Day: ${planet.day} Earth Days`;\n\n  const planetSurfaceArea = document.createElement('li');\n  planetSurfaceArea.textContent = `Surface Area: ${planet.surfaceArea} Earths`;\n\n  const planetVolume = document.createElement('li');\n  planetVolume.textContent = `Volume: ${planet.volume} Earths`;\n\n  const planetGravity = document.createElement('li');\n  planetGravity.textContent = `Gravity: ${planet.gravity} g`;\n\n  const planetMoons = document.createElement('li');\n  planetMoons.textContent = `Moons: ${planet.moons}`;\n\n  // const planetImage = document.createElement('img');\n  // planetImage.setAttribute('src', `../${planet.image}`);\n\n  infoParagraph.appendChild(planetName);\n  infoParagraph.appendChild(planetOrbit);\n  infoParagraph.appendChild(planetDay);\n  infoParagraph.appendChild(planetSurfaceArea);\n  infoParagraph.appendChild(planetVolume);\n  infoParagraph.appendChild(planetGravity);\n  infoParagraph.appendChild(planetMoons);\n\n  this.container.innerHTML = '';\n  this.container.appendChild(infoParagraph);\n};\n\nmodule.exports = ResultView;\n\n\n//# sourceURL=webpack:///./src/views/result_view.js?");
 
 /***/ })
 

@@ -5,10 +5,9 @@ const ResultView = function (container) {
 };
 
 ResultView.prototype.bindEvents = function () {
-  PubSub.subscribe('Planets:all-planets-ready', (event) => {
+  PubSub.subscribe('Planets:selected-planet-ready', (event) => {
     const planet = event.detail;
     this.render(planet);
-    console.log(planet);
   });
 }
 

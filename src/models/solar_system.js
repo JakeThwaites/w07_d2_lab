@@ -6,9 +6,8 @@ const SolarSystem = function(planets) {
 };
 
 SolarSystem.prototype.publishSelectedPlanet = function(planetName){
-  const planetIndex = this.findPlanetByName(planetName);
-  const selectedPlanet = this.planets[planetIndex];
-  PubSub.publish('Planets:selected-planet-ready', selectedPlanet)
+  const planet = this.findPlanetByName(planetName);
+  PubSub.publish('Planets:selected-planet-ready', planet)
 };
 
 SolarSystem.prototype.bindEvents = function () {
@@ -22,7 +21,7 @@ SolarSystem.prototype.bindEvents = function () {
 SolarSystem.prototype.findPlanetByName = function (planetName) {
     for (planet of this.planets) {
       if (planet.name === planetName) {
-        return planet.index;
+        return planet;
       };
     };
 };

@@ -108,14 +108,25 @@ eval("const planets = [\n  {\n    name: 'Mercury',\n    orbit: 87.969,\n    day:
 
 /***/ }),
 
+/***/ "./src/helpers/pub_sub.js":
+/*!********************************!*\
+  !*** ./src/helpers/pub_sub.js ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("const PubSub = {\n  publish: function(channel, payload){\n    const event = new CustomEvent(channel, {\n      detail: payload\n    });\n    document.dispatchEvent(event);\n  },\n\n  subscribe: function(channel, callback){\n    document.addEventListener(channel, callback);\n  }\n}\n\nmodule.exports = PubSub;\n\n\n//# sourceURL=webpack:///./src/helpers/pub_sub.js?");
+
+/***/ }),
+
 /***/ "./src/models/solar_system.js":
 /*!************************************!*\
   !*** ./src/models/solar_system.js ***!
   \************************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-eval("const SolarSystem = function(planets) {\n  this.planets = planets;\n};\n\nmodule.exports = SolarSystem;\n\n\n//# sourceURL=webpack:///./src/models/solar_system.js?");
+eval("const planets = __webpack_require__(/*! ../data/planets.js */ \"./src/data/planets.js\");\nconst PubSub = __webpack_require__(/*! ../helpers/pub_sub.js */ \"./src/helpers/pub_sub.js\");\n\nconst SolarSystem = function(planets) {\n  this.planets = planets;\n};\n\nSolarSystem.prototype.publishSelectedPlanet = function(planetIndex){\n  const selectedPlanet = this.planets[planetIndex];\n  PubSub.publish('Planets:selected-planet-ready', selectedPlanet)\n};\n\nSolarSystem.prototype.bindEvents = function () {\n  PubSub.publish('Planets:all-planets-ready', this.planets);\n  PubSub.subscribe('FormView:change', (event) => {\n    const selectedIndex = event.detail;\n    this.publishSelectedPlanet(selectedIndex);\n  });\n};\n\nmodule.exports = SolarSystem;\n\n\n//# sourceURL=webpack:///./src/models/solar_system.js?");
 
 /***/ })
 

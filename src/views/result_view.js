@@ -36,8 +36,9 @@ ResultView.prototype.render = function (planet) {
   const planetMoons = document.createElement('li');
   planetMoons.textContent = `Moons: ${planet.moons}`;
 
-  // const planetImage = document.createElement('img');
-  // planetImage.setAttribute('src', `../${planet.image}`);
+  const planetImage = document.createElement('img');
+  planetImage.setAttribute('src', `${planet.image}`);
+  planetImage.setAttribute('class', "planet-image")
 
   infoParagraph.appendChild(planetName);
   infoParagraph.appendChild(planetOrbit);
@@ -46,6 +47,7 @@ ResultView.prototype.render = function (planet) {
   infoParagraph.appendChild(planetVolume);
   infoParagraph.appendChild(planetGravity);
   infoParagraph.appendChild(planetMoons);
+  infoParagraph.appendChild(planetImage);
 
   this.container.innerHTML = '';
   this.container.appendChild(infoParagraph);
